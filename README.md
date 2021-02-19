@@ -52,3 +52,35 @@ dataDictionary[busStopID]
 averagePop = sum(popList)/
 len(popList)
 data = [busStopID, averagePop]
+
+
+
+#update  and insert cursor
+import arcpy
+import datetime
+feilds =['rtoweid', 'distance', 'CFCC', 'DateInsp']
+cursdor = arcpy.da.insertCursor('D:/data/base.gdb/roads_maint', feilds)
+#add 25 new rows with defalut values for distance and cfcc 
+for x in range(0,25)
+cursor.insertRow((x, '100', 123,datetime.datetime.now()))
+del cursor
+
+
+# Use InsertCursor with the SHAPE@XY token to add point features to a point feature class.
+import arcpy
+row_values=[('Anderson', (1409934.4442000017, 1076766.8192000017)),
+              ('Andrews', (752000.2489000037, 1128929.8114))]
+ cursor= arcpy.InsetCursor('C:/data/texas.gdb/counties', ['NAME', 'SHAPE@XY'])
+ for row in row_values:
+ corsor.insertRow(row)
+ del cursor
+ 
+ #Use InsertCursor with the SHAPE@ token to add a new feature using a geometry object.
+ array= arcpy.Array([arcpy.Point(459111.6681, 5010433.1285),
+                     arcpy.Point(472516.3818, 5001431.0808),
+                     arcpy.Point(477710.8185, 4986587.1063)])
+ polyline = arcpy.polyline(array)
+ cursor=arcpy.InsertCursor('C:/data/texas.gdb/counties', [shape@])
+ cursor.insertRow([polyline])
+ del cursor
+ 
