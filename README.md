@@ -102,3 +102,102 @@ arcpy.copyFeatures_management(features, r'C:\Projects\Polygons.shp')
 saptialreference = arcpy.spatialReference(4326)
 polygon4326 = polygon.projectAs(saptialreference)
 arcpy.copyfeatures_management(polygon4326, r'C:\Projects\polygon4326.shp')
+
+# Generate 400 foot buffers around
+each bus stop
+import arcpy,csv
+busStops =
+r"C:\Projects\PacktDB.gdb\SanFrancisco\Bus_Stops"
+censusBlocks2010 =
+r"C:\Projects\PacktDB.gdb\SanFrancisco\CensusBlocks2010"
+sql = "NAME = '71 IB' AND BUS_SIGNAG =
+'Ferry Plaza'"
+dataDic = {}
+with arcpy.da.SearchCursor(busStops,
+['NAME','STOPID','SHAPE@'], sql) as
+cursor:
+for row in cursor:
+linename = row[0]
+stopid = row[1]
+shape = row[2]
+dataDic[stopid] =
+shape.buffer(400), linename
+# Intersect census blocks and bus stop
+buffers
+processedDataDic = {} = {}
+for stopid in dataDic.keys():
+values = dataDic[stopid]
+busStopBuffer = values[0]
+linename = values[1]
+blocksIntersected = []
+with
+arcpy.da.SearchCursor(censusBlocks2010,
+['BLOCKID10','POP10','SHAPE@']) as cursor:
+for row in cursor:
+block = row[2]
+population = row[1]
+blockid =
+row[0]
+if
+busStopBuffer.overlaps(block) ==True:
+interPoly =
+busStopBuffer.intersect(block,4)
+data =
+row[0],row[1],interPoly, block
+blocksIntersected.append(data)
+processedDataDic[stopid] = values,
+blocksIntersected
+
+Create an average population for
+each bus stop
+dataList = []
+for stopid in processedDataDic.keys():
+allValues =
+processedDataDic[stopid]
+popValues = []
+blocksIntersected = allValues[1]
+for blocks in blocksIntersected:
+popValues.append(blocks[1])
+averagePop = sum(popValues)/
+len(popValues)
+busStopLine = allValues[0][1]
+busStopID = stopid
+finalData = busStopLine,
+busStopID, averagePop
+dataList.append(finalData)
+# Generate a spreadsheet with the
+analysis results
+def createCSV(data, csvname, mode
+='ab'):
+with open(csvname, mode) as
+csvfile:
+csvwriter =
+csv.writer(csvfile, delimiter=',')
+csvwriter.writerow(data)
+csvname =
+"C:\Projects\Output\StationPopulations.csv"
+headers = 'Bus Line Name','Bus Stop
+ID', 'Average Population'
+createCSV(headers, csvname, 'wb')
+for data in dataList:
+createCSV(data, csvname)
+dataList = []
+for stopid in processedDataDic.keys():
+allValues =
+processedDataDic[stopid]
+popValues = []
+blocksIntersected = allValues[1]
+for blocks in blocksIntersected:
+pop = blocks[1]
+totalArea = blocks[-1].area
+interArea = blocks[-2].area
+finalPop = pop * (interArea/
+totalArea)
+popValues.append(finalPop)
+averagePop = round(sum(popValues)/
+len(popValues),2)
+busStopLine = allValues[0][1]
+busStopID = stopid
+finalData = busStopLine,
+busStopID, averagePop
+dataList.append(finalData)
