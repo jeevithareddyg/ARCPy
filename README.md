@@ -84,3 +84,21 @@ row_values=[('Anderson', (1409934.4442000017, 1076766.8192000017)),
  cursor.insertRow([polyline])
  del cursor
  
+#Polygon object buffers
+import arcpyPoint =
+arcpy.Point(6004548.231,2099946.033)
+point1 =
+arcpy.Point(6008673.935,2105522.068)
+point2 =
+arcpy.Point(6003351.355,2100424.783)Array
+= arcpy.Array()
+Array.add(point1)
+Array.add(point)
+array.add(point2)
+polygon = arcpy.poluygon(array, 2227)
+buffpoly= polygon.buffer(50)
+features = [polygon, buffpoly]
+arcpy.copyFeatures_management(features, r'C:\Projects\Polygons.shp')
+saptialreference = arcpy.spatialReference(4326)
+polygon4326 = polygon.projectAs(saptialreference)
+arcpy.copyfeatures_management(polygon4326, r'C:\Projects\polygon4326.shp')
